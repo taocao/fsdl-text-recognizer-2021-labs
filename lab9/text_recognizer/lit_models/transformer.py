@@ -1,4 +1,5 @@
 import torch.nn as nn
+
 try:
     import wandb
 except ModuleNotFoundError:
@@ -51,7 +52,9 @@ class TransformerLitModel(BaseLitModel):  # pylint: disable=too-many-ancestors
         # Hide lines below until Lab 5
         pred_str = "".join(self.mapping[_] for _ in pred[0].tolist() if _ != 3)
         try:
-            self.logger.experiment.log({"val_pred_examples": [wandb.Image(x[0], caption=pred_str)]})
+            self.logger.experiment.log(
+                {"val_pred_examples": [wandb.Image(x[0], caption=pred_str)]}
+            )
         except AttributeError:
             pass
         # Hide lines above until Lab 5
@@ -64,7 +67,9 @@ class TransformerLitModel(BaseLitModel):  # pylint: disable=too-many-ancestors
         # Hide lines below until Lab 5
         pred_str = "".join(self.mapping[_] for _ in pred[0].tolist() if _ != 3)
         try:
-            self.logger.experiment.log({"test_pred_examples": [wandb.Image(x[0], caption=pred_str)]})
+            self.logger.experiment.log(
+                {"test_pred_examples": [wandb.Image(x[0], caption=pred_str)]}
+            )
         except AttributeError:
             pass
         # Hide lines above until Lab 5

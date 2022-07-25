@@ -31,7 +31,9 @@ def _download_raw_dataset(metadata: Dict, dl_dirname: Path) -> Path:
     print("Computing SHA-256...")
     sha256 = util.compute_sha256(filename)
     if sha256 != metadata["sha256"]:
-        raise ValueError("Downloaded data file SHA-256 does not match that listed in metadata document.")
+        raise ValueError(
+            "Downloaded data file SHA-256 does not match that listed in metadata document."
+        )
     return filename
 
 
@@ -68,16 +70,26 @@ class BaseDataModule(pl.LightningDataModule):
     @staticmethod
     def add_to_argparse(parser):
         parser.add_argument(
-            "--batch_size", type=int, default=BATCH_SIZE, help="Number of examples to operate on per forward step."
+            "--batch_size",
+            type=int,
+            default=BATCH_SIZE,
+            help="Number of examples to operate on per forward step.",
         )
         parser.add_argument(
-            "--num_workers", type=int, default=NUM_WORKERS, help="Number of additional processes to load data."
+            "--num_workers",
+            type=int,
+            default=NUM_WORKERS,
+            help="Number of additional processes to load data.",
         )
         return parser
 
     def config(self):
         """Return important settings of the dataset, which will be passed to instantiate models."""
-        return {"input_dims": self.dims, "output_dims": self.output_dims, "mapping": self.mapping}
+        return {
+            "input_dims": self.dims,
+            "output_dims": self.output_dims,
+            "mapping": self.mapping,
+        }
 
     def prepare_data(self, *args, **kwargs) -> None:
         """

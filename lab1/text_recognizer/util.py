@@ -31,8 +31,6 @@ def read_image_pil_file(image_file, grayscale=False) -> Image:
         return image
 
 
-
-
 def compute_sha256(filename: Union[Path, str]):
     """Return SHA256 checksum of a file."""
     with open(filename, "rb") as f:

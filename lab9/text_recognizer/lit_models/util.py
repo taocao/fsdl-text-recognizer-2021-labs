@@ -3,7 +3,9 @@ from typing import Union
 import torch
 
 
-def first_element(x: torch.Tensor, element: Union[int, float], dim: int = 1) -> torch.Tensor:
+def first_element(
+    x: torch.Tensor, element: Union[int, float], dim: int = 1
+) -> torch.Tensor:
     """
     Return indices of first occurence of element in x. If not found, return length of x along dim.
 

@@ -1,4 +1,5 @@
 import torch.nn as nn
+
 try:
     import wandb
 except ModuleNotFoundError:

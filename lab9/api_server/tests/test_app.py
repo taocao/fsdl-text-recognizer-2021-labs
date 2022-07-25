@@ -25,6 +25,8 @@ class TestIntegrations(TestCase):
     def test_predict(self):
         with open(FILENAME, "rb") as f:
             b64_image = base64.b64encode(f.read())
-        response = self.app.post("/v1/predict", json={"image": f"data:image/png;base64,{b64_image.decode()}"})
+        response = self.app.post(
+            "/v1/predict", json={"image": f"data:image/png;base64,{b64_image.decode()}"}
+        )
         json_data = response.get_json()
         self.assertEqual(json_data["pred"], EXPECTED_PRED)

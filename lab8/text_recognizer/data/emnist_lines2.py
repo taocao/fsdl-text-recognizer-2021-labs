@@ -46,7 +46,10 @@ class EMNISTLines2(BaseDataModule):
         self.emnist = EMNIST()
         self.mapping = self.emnist.mapping
 
-        max_width = int(self.emnist.dims[2] * (self.max_length + 1) * (1 - self.min_overlap)) + IMAGE_X_PADDING
+        max_width = (
+            int(self.emnist.dims[2] * (self.max_length + 1) * (1 - self.min_overlap))
+            + IMAGE_X_PADDING
+        )
         assert max_width <= IMAGE_WIDTH
 
         self.dims = (
@@ -61,7 +64,12 @@ class EMNISTLines2(BaseDataModule):
     def add_to_argparse(parser):
         BaseDataModule.add_to_argparse(parser)
         parser.add_argument("--augment_data", type=str, default="true")
-        parser.add_argument("--max_length", type=int, default=MAX_LENGTH, help="Max line length in characters.")
+        parser.add_argument(
+            "--max_length",
+            type=int,
+            default=MAX_LENGTH,
+            help="Max line length in characters.",
+        )
         parser.add_argument(
             "--min_overlap",
             type=float,
@@ -100,14 +108,20 @@ class EMNISTLines2(BaseDataModule):
                 x_val = [Image.fromarray(_) for _ in f["x_val"][:]]
                 y_val = torch.LongTensor(f["y_val"][:])
 
-            self.data_train = BaseDataset(x_train, y_train, transform=get_transform(augment=self.augment))
-            self.data_val = BaseDataset(x_val, y_val, transform=get_transform(augment=self.augment))
+            self.data_train = BaseDataset(
+                x_train, y_train, transform=get_transform(augment=self.augment)
+            )
+            self.data_val = BaseDataset(
+                x_val, y_val, transform=get_transform(augment=self.augment)
+            )
 
         if stage == "test" or stage is None:
             with h5py.File(self.data_filename, "r") as f:
                 x_test = f["x_test"][:]
                 y_test = torch.LongTensor(f["y_test"][:])
-            self.data_test = BaseDataset(x_test, y_test, transform=get_transform(augment=False))
+            self.data_test = BaseDataset(
+                x_test, y_test, transform=get_transform(augment=False)
+            )
 
     def __repr__(self) -> str:
         """Print info about the dataset."""
@@ -136,26 +150,39 @@ class EMNISTLines2(BaseDataModule):
         # pylint: disable=import-outside-toplevel
         from text_recognizer.data.sentence_generator import SentenceGenerator
 
-        sentence_generator = SentenceGenerator(self.max_length - 2)  # Subtract two because we will add start/end tokens
+        sentence_generator = SentenceGenerator(
+            self.max_length - 2
+        )  # Subtract two because we will add start/end tokens
 
         emnist = self.emnist
         emnist.prepare_data()
         emnist.setup()
 
         if split == "train":
-            samples_by_char = get_samples_by_char(emnist.x_trainval, emnist.y_trainval, emnist.mapping)
+            samples_by_char = get_samples_by_char(
+                emnist.x_trainval, emnist.y_trainval, emnist.mapping
+            )
             num = self.num_train
         elif split == "val":
-            samples_by_char = get_samples_by_char(emnist.x_trainval, emnist.y_trainval, emnist.mapping)
+            samples_by_char = get_samples_by_char(
+                emnist.x_trainval, emnist.y_trainval, emnist.mapping
+            )
             num = self.num_val
         else:
-            samples_by_char = get_samples_by_char(emnist.x_test, emnist.y_test, emnist.mapping)
+            samples_by_char = get_samples_by_char(
+                emnist.x_test, emnist.y_test, emnist.mapping
+            )
             num = self.num_test
 
         DATA_DIRNAME.mkdir(parents=True, exist_ok=True)
         with h5py.File(self.data_filename, "a") as f:
             x, y = create_dataset_of_images(
-                num, samples_by_char, sentence_generator, self.min_overlap, self.max_overlap, self.dims
+                num,
+                samples_by_char,
+                sentence_generator,
+                self.min_overlap,
+                self.max_overlap,
+                self.dims,
             )
             y = convert_strings_to_labels(
                 y,
@@ -186,7 +213,11 @@ def select_letter_samples_for_string(string, samples_by_char):
 
 
 def construct_image_from_string(
-    string: str, samples_by_char: dict, min_overlap: float, max_overlap: float, width: int
+    string: str,
+    samples_by_char: dict,
+    min_overlap: float,
+    max_overlap: float,
+    width: int,
 ) -> torch.Tensor:
     overlap = np.random.uniform(min_overlap, max_overlap)
     sampled_images = select_letter_samples_for_string(string, samples_by_char)
@@ -200,12 +231,16 @@ def construct_image_from_string(
     return torch.minimum(torch.Tensor([255]), concatenated_image)
 
 
-def create_dataset_of_images(N, samples_by_char, sentence_generator, min_overlap, max_overlap, dims):
+def create_dataset_of_images(
+    N, samples_by_char, sentence_generator, min_overlap, max_overlap, dims
+):
     images = torch.zeros((N, IMAGE_HEIGHT, dims[2]))
     labels = []
     for n in range(N):
         label = sentence_generator.generate()
-        crop = construct_image_from_string(label, samples_by_char, min_overlap, max_overlap, dims[-1])
+        crop = construct_image_from_string(
+            label, samples_by_char, min_overlap, max_overlap, dims[-1]
+        )
         height = crop.shape[0]
         y1 = (IMAGE_HEIGHT - height) // 2
         images[n, y1 : (y1 + height), :] = crop
@@ -221,7 +256,12 @@ def get_transform(augment=False):
         [
             transforms.ColorJitter(brightness=(0.5, 1)),
             transforms.RandomAffine(
-                degrees=3, translate=(0, 0.05), scale=(0.4, 1.1), shear=(-40, 50), resample=Image.BILINEAR, fillcolor=0
+                degrees=3,
+                translate=(0, 0.05),
+                scale=(0.4, 1.1),
+                shear=(-40, 50),
+                resample=Image.BILINEAR,
+                fillcolor=0,
             ),
             transforms.ToTensor(),
         ]

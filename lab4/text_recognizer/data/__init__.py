@@ -7,6 +7,3 @@ from .emnist import EMNIST
 from .emnist_lines import EMNISTLines
 
 # Hide lines above until Lab 2
-
-
-

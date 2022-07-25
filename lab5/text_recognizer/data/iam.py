@@ -9,7 +9,11 @@ import zipfile
 from boltons.cacheutils import cachedproperty
 import toml
 
-from text_recognizer.data.base_data_module import BaseDataModule, _download_raw_dataset, load_and_print_info
+from text_recognizer.data.base_data_module import (
+    BaseDataModule,
+    _download_raw_dataset,
+    load_and_print_info,
+)
 
 
 RAW_DATA_DIRNAME = BaseDataModule.data_dirname() / "raw" / "iam"
@@ -60,23 +64,34 @@ class IAM(BaseDataModule):
     @property
     def split_by_id(self):
         return {
-            filename.stem: "test" if filename.stem in self.metadata["test_ids"] else "trainval"
+            filename.stem: "test"
+            if filename.stem in self.metadata["test_ids"]
+            else "trainval"
             for filename in self.form_filenames
         }
 
     @cachedproperty
     def line_strings_by_id(self):
         """Return a dict from name of IAM form to a list of line texts in it."""
-        return {filename.stem: _get_line_strings_from_xml_file(filename) for filename in self.xml_filenames}
+        return {
+            filename.stem: _get_line_strings_from_xml_file(filename)
+            for filename in self.xml_filenames
+        }
 
     @cachedproperty
     def line_regions_by_id(self):
         """Return a dict from name of IAM form to a list of (x1, x2, y1, y2) coordinates of all lines in it."""
-        return {filename.stem: _get_line_regions_from_xml_file(filename) for filename in self.xml_filenames}
+        return {
+            filename.stem: _get_line_regions_from_xml_file(filename)
+            for filename in self.xml_filenames
+        }
 
     def __repr__(self):
         """Print info about the dataset."""
-        return "IAM Dataset\n" f"Num total: {len(self.xml_filenames)}\nNum test: {len(self.metadata['test_ids'])}\n"
+        return (
+            "IAM Dataset\n"
+            f"Num total: {len(self.xml_filenames)}\nNum test: {len(self.metadata['test_ids'])}\n"
+        )
 
 
 def _extract_raw_dataset(filename: Path, dirname: Path) -> None:

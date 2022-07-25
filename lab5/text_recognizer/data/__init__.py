@@ -13,5 +13,3 @@ from .emnist_lines2 import EMNISTLines2
 from .iam_lines import IAMLines
 
 # Hide lines above until Lab 5
-
-

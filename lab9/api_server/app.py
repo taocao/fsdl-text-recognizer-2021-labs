@@ -14,6 +14,7 @@ app = Flask(__name__)  # pylint: disable=invalid-name
 model = ParagraphTextRecognizer()
 logging.basicConfig(level=logging.INFO)
 
+
 @app.route("/")
 def index():
     """Provide simple health check route."""

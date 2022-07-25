@@ -11,5 +11,3 @@ from .line_cnn import LineCNN
 from .line_cnn_lstm import LineCNNLSTM
 
 # Hide lines above until Lab 3
-
-

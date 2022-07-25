@@ -18,7 +18,9 @@ class ConvBlock(nn.Module):
 
     def __init__(self, input_channels: int, output_channels: int) -> None:
         super().__init__()
-        self.conv = nn.Conv2d(input_channels, output_channels, kernel_size=3, stride=1, padding=1)
+        self.conv = nn.Conv2d(
+            input_channels, output_channels, kernel_size=3, stride=1, padding=1
+        )
         self.relu = nn.ReLU()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -41,7 +43,9 @@ class ConvBlock(nn.Module):
 class CNN(nn.Module):
     """Simple CNN for recognizing characters in a square image."""
 
-    def __init__(self, data_config: Dict[str, Any], args: argparse.Namespace = None) -> None:
+    def __init__(
+        self, data_config: Dict[str, Any], args: argparse.Namespace = None
+    ) -> None:
         super().__init__()
         self.args = vars(args) if args is not None else {}
 

@@ -17,7 +17,9 @@ class SentenceGenerator:
 
     def __init__(self, max_length: Optional[int] = None):
         self.text = brown_text()
-        self.word_start_inds = [0] + [_.start(0) + 1 for _ in re.finditer(" ", self.text)]
+        self.word_start_inds = [0] + [
+            _.start(0) + 1 for _ in re.finditer(" ", self.text)
+        ]
         self.max_length = max_length
 
     def generate(self, max_length: Optional[int] = None) -> str:
@@ -27,7 +29,9 @@ class SentenceGenerator:
         if max_length is None:
             max_length = self.max_length
         if max_length is None:
-            raise ValueError("Must provide max_length to this method or when making this object.")
+            raise ValueError(
+                "Must provide max_length to this method or when making this object."
+            )
 
         for _ in range(10):  # Try several times to generate before actually erroring
             try:

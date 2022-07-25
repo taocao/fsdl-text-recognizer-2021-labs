@@ -4,6 +4,3 @@ from .mlp import MLP
 from .cnn import CNN
 
 # Hide lines above until Lab 2
-
-
-

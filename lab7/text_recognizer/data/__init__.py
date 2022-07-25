@@ -19,4 +19,3 @@ from .iam_paragraphs import IAMParagraphs
 from .iam_original_and_synthetic_paragraphs import IAMOriginalAndSyntheticParagraphs
 
 # Hide lines above until Lab 7
-

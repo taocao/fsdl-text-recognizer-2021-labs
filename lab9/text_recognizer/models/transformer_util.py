@@ -17,16 +17,26 @@ class PositionalEncodingImage(nn.Module):
         super().__init__()
         self.d_model = d_model
         assert d_model % 2 == 0, f"Embedding depth {d_model} is not even"
-        pe = self.make_pe(d_model=d_model, max_h=max_h, max_w=max_w)  # (d_model, max_h, max_w)
+        pe = self.make_pe(
+            d_model=d_model, max_h=max_h, max_w=max_w
+        )  # (d_model, max_h, max_w)
         self.register_buffer("pe", pe)
 
     @staticmethod
     def make_pe(d_model: int, max_h: int, max_w: int) -> torch.Tensor:
-        pe_h = PositionalEncoding.make_pe(d_model=d_model // 2, max_len=max_h)  # (max_h, 1 d_model // 2)
-        pe_h = pe_h.permute(2, 0, 1).expand(-1, -1, max_w)  # (d_model // 2, max_h, max_w)
+        pe_h = PositionalEncoding.make_pe(
+            d_model=d_model // 2, max_len=max_h
+        )  # (max_h, 1 d_model // 2)
+        pe_h = pe_h.permute(2, 0, 1).expand(
+            -1, -1, max_w
+        )  # (d_model // 2, max_h, max_w)
 
-        pe_w = PositionalEncoding.make_pe(d_model=d_model // 2, max_len=max_w)  # (max_w, 1, d_model // 2)
-        pe_w = pe_w.permute(2, 1, 0).expand(-1, max_h, -1)  # (d_model // 2, max_h, max_w)
+        pe_w = PositionalEncoding.make_pe(
+            d_model=d_model // 2, max_len=max_w
+        )  # (max_w, 1, d_model // 2)
+        pe_w = pe_w.permute(2, 1, 0).expand(
+            -1, max_h, -1
+        )  # (d_model // 2, max_h, max_w)
 
         pe = torch.cat([pe_h, pe_w], dim=0)  # (d_model, max_h, max_w)
         return pe
@@ -55,7 +65,9 @@ class PositionalEncoding(torch.nn.Module):
     def make_pe(d_model: int, max_len: int) -> torch.Tensor:
         pe = torch.zeros(max_len, d_model)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        div_term = torch.exp(
+            torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model)
+        )
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
         pe = pe.unsqueeze(1)
@@ -71,5 +83,9 @@ class PositionalEncoding(torch.nn.Module):
 def generate_square_subsequent_mask(size: int) -> torch.Tensor:
     """Generate a triangular (size, size) mask."""
     mask = (torch.triu(torch.ones(size, size)) == 1).transpose(0, 1)
-    mask = mask.float().masked_fill(mask == 0, float("-inf")).masked_fill(mask == 1, float(0.0))
+    mask = (
+        mask.float()
+        .masked_fill(mask == 0, float("-inf"))
+        .masked_fill(mask == 1, float(0.0))
+    )
     return mask

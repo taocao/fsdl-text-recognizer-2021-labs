@@ -37,24 +37,35 @@ def save_best_model():
         sort_reverse = True
 
     api = wandb.Api()
-    runs = api.runs(f"{args.entity}/{args.project}", filters={"config.data_class": args.trained_data_class})
+    runs = api.runs(
+        f"{args.entity}/{args.project}",
+        filters={"config.data_class": args.trained_data_class},
+    )
     sorted_runs = sorted(
         runs,
-        key=lambda run: _get_summary_value(wandb_run=run, key=args.metric, default=default_metric_value),
+        key=lambda run: _get_summary_value(
+            wandb_run=run, key=args.metric, default=default_metric_value
+        ),
         reverse=sort_reverse,
     )
 
     best_run = sorted_runs[0]
     summary = best_run.summary
-    print(f"Best run ({best_run.name}, {best_run.id}) picked from {len(runs)} runs with the following metrics:")
-    print(f" - val_loss: {summary['val_loss']}, val_cer: {summary['val_cer']}, test_cer: {summary['test_cer']}")
+    print(
+        f"Best run ({best_run.name}, {best_run.id}) picked from {len(runs)} runs with the following metrics:"
+    )
+    print(
+        f" - val_loss: {summary['val_loss']}, val_cer: {summary['val_cer']}, test_cer: {summary['test_cer']}"
+    )
 
     artifacts_dirname = _get_artifacts_dirname(args.trained_data_class)
     with open(artifacts_dirname / "config.json", "w") as file:
         json.dump(best_run.config, file, indent=4)
     with open(artifacts_dirname / "run_command.txt", "w") as file:
         file.write(_get_run_command(best_run))
-    _save_model_weights(wandb_run=best_run, project=args.project, output_dirname=artifacts_dirname)
+    _save_model_weights(
+        wandb_run=best_run, project=args.project, output_dirname=artifacts_dirname
+    )
 
 
 def _get_artifacts_dirname(trained_data_class: str) -> Path:
@@ -67,17 +78,25 @@ def _get_artifacts_dirname(trained_data_class: str) -> Path:
     return artifacts_dirname
 
 
-def _save_model_weights(wandb_run: wandb.apis.public.Run, project: str, output_dirname: Path):
+def _save_model_weights(
+    wandb_run: wandb.apis.public.Run, project: str, output_dirname: Path
+):
     """Save checkpointed model weights in output_dirname."""
-    weights_filename = _copy_local_model_checkpoint(run_id=wandb_run.id, project=project, output_dirname=output_dirname)
+    weights_filename = _copy_local_model_checkpoint(
+        run_id=wandb_run.id, project=project, output_dirname=output_dirname
+    )
     if weights_filename is None:
         weights_filename = _download_model_checkpoint(wandb_run, output_dirname)
         assert weights_filename is not None, "Model checkpoint not found"
 
 
-def _copy_local_model_checkpoint(run_id: str, project: str, output_dirname: Path) -> Optional[Path]:
+def _copy_local_model_checkpoint(
+    run_id: str, project: str, output_dirname: Path
+) -> Optional[Path]:
     """Copy model checkpoint file on system to output_dirname."""
-    checkpoint_filenames = list((TRAINING_LOGS_DIRNAME / project / run_id).glob("**/*.ckpt"))
+    checkpoint_filenames = list(
+        (TRAINING_LOGS_DIRNAME / project / run_id).glob("**/*.ckpt")
+    )
     if not checkpoint_filenames:
         return None
     shutil.copyfile(src=checkpoint_filenames[0], dst=output_dirname / "model.pt")
@@ -85,9 +104,13 @@ def _copy_local_model_checkpoint(run_id: str, project: str, output_dirname: Path
     return checkpoint_filenames[0]
 
 
-def _download_model_checkpoint(wandb_run: wandb.apis.public.Run, output_dirname: Path) -> Optional[Path]:
+def _download_model_checkpoint(
+    wandb_run: wandb.apis.public.Run, output_dirname: Path
+) -> Optional[Path]:
     """Download model checkpoint to output_dirname."""
-    checkpoint_wandb_files = [file for file in wandb_run.files() if file.name.endswith(".ckpt")]
+    checkpoint_wandb_files = [
+        file for file in wandb_run.files() if file.name.endswith(".ckpt")
+    ]
     if not checkpoint_wandb_files:
         return None
 
@@ -110,7 +133,9 @@ def _get_run_command(wandb_run: wandb.apis.public.Run) -> str:
     return f"python {metadata['program']} " + " ".join(metadata["args"])
 
 
-def _get_summary_value(wandb_run: wandb.apis.public.Run, key: str, default: int) -> Union[int, float]:
+def _get_summary_value(
+    wandb_run: wandb.apis.public.Run, key: str, default: int
+) -> Union[int, float]:
     """Return numeric value at summary[key] for wandb_run if it is valid, else return default."""
     value = wandb_run.summary.get(key, default)
     if not isinstance(value, (int, float)):

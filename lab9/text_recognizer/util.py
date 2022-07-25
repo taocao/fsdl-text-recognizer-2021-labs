@@ -39,7 +39,9 @@ def read_b64_image(b64_string, grayscale=False):  # pylint: disable=unused-argum
         image_file = BytesIO(base64.b64decode(b64_data))
         return read_image_pil_file(image_file, grayscale)
     except Exception as exception:
-        raise ValueError("Could not load image from b64 {}: {}".format(b64_string, exception)) from exception
+        raise ValueError(
+            "Could not load image from b64 {}: {}".format(b64_string, exception)
+        ) from exception
 
 
 # Hide lines above until Lab 9

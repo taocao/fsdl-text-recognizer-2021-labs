@@ -37,7 +37,9 @@ class CTCLitModel(BaseLitModel):  # pylint: disable=too-many-ancestors
     def __init__(self, model, args: argparse.Namespace = None):
         super().__init__(model, args)
 
-        inverse_mapping = {val: ind for ind, val in enumerate(self.model.data_config["mapping"])}
+        inverse_mapping = {
+            val: ind for ind, val in enumerate(self.model.data_config["mapping"])
+        }
         start_index = inverse_mapping["<S>"]
         self.blank_index = inverse_mapping["<B>"]
         end_index = inverse_mapping["<E>"]
@@ -52,7 +54,12 @@ class CTCLitModel(BaseLitModel):  # pylint: disable=too-many-ancestors
 
     @staticmethod
     def add_to_argparse(parser):
-        parser.add_argument("--optimizer", type=str, default="Adam", help="optimizer class from torch.optim")
+        parser.add_argument(
+            "--optimizer",
+            type=str,
+            default="Adam",
+            help="optimizer class from torch.optim",
+        )
         parser.add_argument("--lr", type=float, default=1e-3)
         return parser
 
@@ -83,8 +90,12 @@ class CTCLitModel(BaseLitModel):  # pylint: disable=too-many-ancestors
         B, _C, S = logprobs.shape
 
         logprobs_for_loss = logprobs.permute(2, 0, 1)  # -> (S, B, C)
-        input_lengths = torch.ones(B).type_as(logprobs_for_loss).int() * S  # All are max sequence length
-        target_lengths = first_element(y, self.padding_index).type_as(y)  # Length is up to first padding token
+        input_lengths = (
+            torch.ones(B).type_as(logprobs_for_loss).int() * S
+        )  # All are max sequence length
+        target_lengths = first_element(y, self.padding_index).type_as(
+            y
+        )  # Length is up to first padding token
         loss = self.loss_fn(logprobs_for_loss, y, input_lengths, target_lengths)
         self.log("val_loss", loss, prog_bar=True)
 
@@ -126,9 +137,15 @@ class CTCLitModel(BaseLitModel):  # pylint: disable=too-many-ancestors
         """
         B = logprobs.shape[0]
         argmax = logprobs.argmax(1)
-        decoded = torch.ones((B, max_length)).type_as(logprobs).int() * self.padding_index
+        decoded = (
+            torch.ones((B, max_length)).type_as(logprobs).int() * self.padding_index
+        )
         for i in range(B):
-            seq = [b for b, _g in itertools.groupby(argmax[i].tolist()) if b != self.blank_index][:max_length]
+            seq = [
+                b
+                for b, _g in itertools.groupby(argmax[i].tolist())
+                if b != self.blank_index
+            ][:max_length]
             for ii, char in enumerate(seq):
                 decoded[i, ii] = char
         return decoded

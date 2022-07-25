@@ -34,7 +34,9 @@ class IAMOriginalAndSyntheticParagraphs(BaseDataModule):
         self.iam_paragraphs.setup(stage)
         self.iam_syn_paragraphs.setup(stage)
 
-        self.data_train = ConcatDataset([self.iam_paragraphs.data_train, self.iam_syn_paragraphs.data_train])
+        self.data_train = ConcatDataset(
+            [self.iam_paragraphs.data_train, self.iam_syn_paragraphs.data_train]
+        )
         self.data_val = self.iam_paragraphs.data_val
         self.data_test = self.iam_paragraphs.data_test
 
