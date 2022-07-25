@@ -118,8 +118,8 @@ tensorboard==2.4.1
     # via pytorch-lightning
 toml==0.10.2
     # via -r requirements/prod.in
-#torch==1.7.1
-torch==1.10.2
+torch==1.7.1
+#torch==1.10.2
     # via
     #   -r requirements/prod.in
     #   pytorch-lightning
