@@ -12,7 +12,7 @@ class CharacterErrorRate(pl.metrics.Metric):
         super().__init__(*args)
         self.ignore_tokens = set(ignore_tokens)
         self.add_state(
-            "error", default=torch.tensor(0.0), dist_reduce_fx="sum"
+            "error", default=torch.tensor(0), dist_reduce_fx="sum"
         )  # pylint: disable=not-callable
         self.add_state(
             "total", default=torch.tensor(0), dist_reduce_fx="sum"
